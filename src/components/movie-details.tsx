@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface MovieDetailsProps {
   movie: {
@@ -22,35 +24,80 @@ interface MovieDetailsProps {
 }
 
 export default function MovieDetails({ movie }: MovieDetailsProps) {
+  const { data: session } = useSession();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if movie is in favorites
-    const checkFavoriteStatus = () => {
-      const storedFavorites = localStorage.getItem("favorites");
-      if (storedFavorites) {
-        const favorites = JSON.parse(storedFavorites) as number[];
-        setIsFavorite(favorites.includes(movie.id));
+    const checkFavoriteStatus = async () => {
+      if (!session) return;
+
+      try {
+        const response = await fetch(`/api/favorites/${movie.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsFavorite(data.isFavorite);
+        }
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
       }
     };
 
     checkFavoriteStatus();
-  }, [movie.id]);
+  }, [movie.id, session]);
 
-  const toggleFavorite = () => {
-    const storedFavorites = localStorage.getItem("favorites");
-    let favorites: number[] = storedFavorites
-      ? JSON.parse(storedFavorites)
-      : [];
-
-    if (isFavorite) {
-      favorites = favorites.filter((id) => id !== movie.id);
-    } else {
-      favorites.push(movie.id);
+  const toggleFavorite = async () => {
+    if (!session) {
+      toast.error("Authentication required", {
+        description: "Please log in to add favorites",
+      });
+      return;
     }
 
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-    setIsFavorite(!isFavorite);
+    setIsLoading(true);
+
+    try {
+      if (isFavorite) {
+        const response = await fetch(`/api/favorites/${movie.id}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setIsFavorite(false);
+          toast.success("Removed from favorites", {
+            description: `${movie.title} has been removed from your favorites`,
+          });
+        }
+      } else {
+        const response = await fetch("/api/favorites", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            movieId: movie.id,
+            title: movie.title,
+            posterPath: movie.poster_path,
+            voteAverage: movie.vote_average,
+            releaseDate: movie.release_date,
+          }),
+        });
+
+        if (response.ok) {
+          setIsFavorite(true);
+          toast.success("Added to favorites", {
+            description: `${movie.title} has been added to your favorites`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast("Error", {
+        description: "Failed to update favorites",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formatRuntime = (minutes: number | null) => {
@@ -152,11 +199,16 @@ export default function MovieDetails({ movie }: MovieDetailsProps) {
             onClick={toggleFavorite}
             variant={isFavorite ? "default" : "outline"}
             className={isFavorite ? "bg-red-500 hover:bg-red-600" : ""}
+            disabled={isLoading}
           >
             <Heart
               className={`mr-2 h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
             />
-            {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+            {isLoading
+              ? "Processing..."
+              : isFavorite
+              ? "Remove from Favorites"
+              : "Add to Favorites"}
           </Button>
         </div>
       </div>

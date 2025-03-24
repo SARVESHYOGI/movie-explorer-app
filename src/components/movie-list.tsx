@@ -27,7 +27,7 @@ export default function MovieList() {
         setIsLoading(true);
         const data = await getPopularMovies(1);
         setMovies(data.results);
-        setTotalPages(Math.min(data.total_pages, 500)); // TMDB API limits to 500 pages
+        setTotalPages(Math.min(data.total_pages, 500));
       } catch (error) {
         console.error("Failed to fetch movies:", error);
       } finally {

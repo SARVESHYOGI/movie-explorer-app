@@ -11,7 +11,7 @@ export default async function SearchPage({
   searchParams: { query?: string; page?: string };
 }) {
   const session = await getServerSession(authOptions);
-
+  console.log("session in search ", session);
   if (!session) {
     redirect("/login");
   }
@@ -24,8 +24,9 @@ export default async function SearchPage({
 
   if (query) {
     const data = await searchMovies(query, page);
+    console.log(data);
     results = data.results;
-    totalPages = data.total_pages > 500 ? 500 : data.total_pages; // TMDB API limits to 500 pages
+    totalPages = data.total_pages > 500 ? 500 : data.total_pages;
   }
 
   return (

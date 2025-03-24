@@ -33,7 +33,6 @@ export default function Header() {
     }
   };
 
-  // Close mobile menu when changing routes
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);

@@ -9,6 +9,8 @@ import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 interface MovieProps {
   movie: {
@@ -21,38 +23,83 @@ interface MovieProps {
 }
 
 export default function MovieCard({ movie }: MovieProps) {
+  const { data: session } = useSession();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    // Check if movie is in favorites
-    const checkFavoriteStatus = () => {
-      const storedFavorites = localStorage.getItem("favorites");
-      if (storedFavorites) {
-        const favorites = JSON.parse(storedFavorites) as number[];
-        setIsFavorite(favorites.includes(movie.id));
+    const checkFavoriteStatus = async () => {
+      if (!session) return;
+
+      try {
+        const response = await fetch(`/api/favorites/${movie.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setIsFavorite(data.isFavorite);
+        }
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
       }
     };
 
     checkFavoriteStatus();
-  }, [movie.id]);
+  }, [movie.id, session]);
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  const toggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const storedFavorites = localStorage.getItem("favorites");
-    let favorites: number[] = storedFavorites
-      ? JSON.parse(storedFavorites)
-      : [];
-
-    if (isFavorite) {
-      favorites = favorites.filter((id) => id !== movie.id);
-    } else {
-      favorites.push(movie.id);
+    if (!session) {
+      toast.error("Authentication required", {
+        description: "Please log in to add favorites",
+      });
+      return;
     }
 
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-    setIsFavorite(!isFavorite);
+    setIsLoading(true);
+
+    try {
+      if (isFavorite) {
+        const response = await fetch(`/api/favorites/${movie.id}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setIsFavorite(false);
+          toast.success("Removed from favorites", {
+            description: `${movie.title} has been removed from your favorites`,
+          });
+        }
+      } else {
+        const response = await fetch("/api/favorites", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            movieId: movie.id,
+            title: movie.title,
+            posterPath: movie.poster_path,
+            voteAverage: movie.vote_average,
+            releaseDate: movie.release_date,
+          }),
+        });
+
+        if (response.ok) {
+          setIsFavorite(true);
+          toast.success("Added to favorites", {
+            description: `${movie.title} has been added to your favorites`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast.error("Error", {
+        description: "Failed to update favorites",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const releaseYear = movie.release_date
@@ -87,6 +134,7 @@ export default function MovieCard({ movie }: MovieProps) {
               isFavorite ? "text-red-500" : "text-muted-foreground"
             }`}
             onClick={toggleFavorite}
+            disabled={isLoading}
           >
             <Heart className={`h-5 w-5 ${isFavorite ? "fill-current" : ""}`} />
             <span className="sr-only">

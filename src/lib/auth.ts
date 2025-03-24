@@ -1,7 +1,17 @@
-import type { NextAuthOptions } from "next-auth"
+import type { NextAuthOptions, Session } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { db } from "@/lib/db"
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name: string;
+      email: string;
+    }
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -62,8 +72,8 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user = {
           id: token.id as string,
-          name: token.name,
-          email: token.email,
+          name: token.name as string,
+          email: token.email as string,
         }
       }
       return session

@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const movie = await getMovieDetails(params.id);
-
+  console.log("movie in metadata", movie);
   if (!movie) {
     return {
       title: "Movie Not Found",
@@ -27,7 +27,7 @@ export default async function MoviePage({
   params: { id: string };
 }) {
   const session = await getServerSession(authOptions);
-
+  console.log(session);
   if (!session) {
     redirect("/login");
   }

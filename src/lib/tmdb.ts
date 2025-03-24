@@ -1,16 +1,13 @@
-const TMDB_API_KEY = process.env.TMDB_API_KEY
+const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY
 const TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
-// Ensure API key is available
 if (!TMDB_API_KEY) {
-  console.warn("TMDB_API_KEY is not defined in environment variables")
+  console.warn("env not fount api kry")
 }
 
-// Helper function to make API requests
 async function fetchFromTMDB(endpoint: string, params: Record<string, string> = {}) {
   const url = new URL(`${TMDB_BASE_URL}${endpoint}`)
 
-  // Add API key and other params
   url.searchParams.append("api_key", TMDB_API_KEY || "")
   Object.entries(params).forEach(([key, value]) => {
     url.searchParams.append(key, value)
@@ -30,17 +27,14 @@ async function fetchFromTMDB(endpoint: string, params: Record<string, string> = 
   }
 }
 
-// Get popular movies
 export async function getPopularMovies(page = 1) {
   return fetchFromTMDB("/movie/popular", { page: page.toString() })
 }
 
-// Get movie details
 export async function getMovieDetails(id: string) {
   return fetchFromTMDB(`/movie/${id}`)
 }
 
-// Search movies
 export async function searchMovies(query: string, page = 1) {
   return fetchFromTMDB("/search/movie", {
     query,
@@ -49,7 +43,6 @@ export async function searchMovies(query: string, page = 1) {
   })
 }
 
-// Get movie recommendations
 export async function getMovieRecommendations(id: string) {
   return fetchFromTMDB(`/movie/${id}/recommendations`)
 }

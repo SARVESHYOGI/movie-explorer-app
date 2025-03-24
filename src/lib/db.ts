@@ -2,7 +2,6 @@ import clientPromise from "./mongodb"
 import { ObjectId } from "mongodb"
 
 export const db = {
-  // User operations
   user: {
     async findUnique({ where }: { where: { email: string } | { id: string } }) {
       const client = await clientPromise
