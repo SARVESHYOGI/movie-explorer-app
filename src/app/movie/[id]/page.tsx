@@ -6,7 +6,10 @@ import { getMovieDetails } from "@/lib/tmdb";
 import MovieDetails from "@/components/movie-details";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+type Params = Promise<{ id: string }>;
+
+export async function generateMetadata(props: { params: Params }) {
+  const params = await props.params;
   const movie = await getMovieDetails(params.id);
   console.log("movie in metadata", movie);
   if (!movie) {
@@ -21,11 +24,9 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   };
 }
 
-export default async function MoviePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function MoviePage(props: { params: Params }) {
+  const params = await props.params;
+  console.log("params", params);
   const session = await getServerSession(authOptions);
   console.log(session);
   if (!session) {

@@ -1,3 +1,17 @@
+interface Movie {
+  id: number;
+    title: string;
+    overview: string;
+    poster_path: string | null;
+    backdrop_path: string | null;
+    vote_average: number;
+    vote_count: number;
+    release_date: string;
+    runtime: number | null;
+    genres: { id: number; name: string }[];
+}
+
+
 const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY
 const TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
@@ -31,7 +45,7 @@ export async function getPopularMovies(page = 1) {
   return fetchFromTMDB("/movie/popular", { page: page.toString() })
 }
 
-export async function getMovieDetails(id: string) {
+export async function getMovieDetails(id: string): Promise<Movie | null> {
   return fetchFromTMDB(`/movie/${id}`)
 }
 

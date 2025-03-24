@@ -5,11 +5,12 @@ import { searchMovies } from "@/lib/tmdb";
 import SearchResults from "@/components/search-results";
 import SearchForm from "@/components/search-form";
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: { query?: string; page?: string };
+type SearchParams = Promise<{ query?: string; page?: string }>;
+
+export default async function SearchPage(props: {
+  searchParams: SearchParams;
 }) {
+  const searchParams = await props.searchParams;
   const session = await getServerSession(authOptions);
   console.log("session in search ", session);
   if (!session) {
