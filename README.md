@@ -40,6 +40,24 @@ The **Movie Explorer App** is a web application built using **Next.js 15** that 
 - **Next.js Image Optimization** for faster image loading.
 - **Loading skeletons** for better user experience.
 
+
+## Preview 🖼️
+Home Page
+![Home Page](https://res.cloudinary.com/dztzgqzjp/image/upload/v1743170686/Screenshot_2025-03-28_193051_z1uyre.png)
+Login Page
+![Login Page](https://res.cloudinary.com/dztzgqzjp/image/upload/v1743172582/Screenshot_2025-03-28_200534_nwwwc1.png)
+Register Page
+![Register Page](https://res.cloudinary.com/dztzgqzjp/image/upload/v1743172582/Screenshot_2025-03-28_200552_juyn1u.png)
+Query Search Page
+![query search page](https://res.cloudinary.com/dztzgqzjp/image/upload/v1743170686/Screenshot_2025-03-28_193221_sj742a.png)
+Movie Details Page
+![movie details page](https://res.cloudinary.com/dztzgqzjp/image/upload/v1743170686/Screenshot_2025-03-28_193129_m2rfdp.png)
+Added Favourite movie
+![Favourite Page](https://res.cloudinary.com/dztzgqzjp/image/upload/v1743170686/Screenshot_2025-03-28_193148_g7bzmv.png)
+Pagination
+![pagination](https://res.cloudinary.com/dztzgqzjp/image/upload/v1743170686/Screenshot_2025-03-28_193307_zsetuv.png)
+
+
 ## 🛠️ Tech Stack
 
 - **Framework:** Next.js 15 (App Router)
